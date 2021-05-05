@@ -67,23 +67,6 @@ export default class BusSeat extends Component {
       this.animatedValue[value] = new Animated.Value(0);
     });
   }
-  getAlert = () => {
-    Alert.alert('Successfully Booked', 'Booked', [
-      {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
-        style: 'cancel',
-      },
-      {
-        text: 'Show QR Code',
-
-        onPress: () =>
-          Actions.qrScreen({
-            qr: this.state.booking.qrcode,
-          }),
-      },
-    ]);
-  };
 
   getUserId = async () => {
     await AsyncStorage.getItem('stsUser_id').then((v) => {
@@ -224,8 +207,8 @@ export default class BusSeat extends Component {
         if (elem.selected !== true) {
           return {
             ...elem,
-            // selected: true,
-            selected: !elem.selected,
+            selected: true,
+            // selected: !elem.selected,
           };
         }
         return elem;

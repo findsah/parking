@@ -69,6 +69,8 @@ export default class Signup extends Component {
             this.setState({isLoading: false});
             Alert.alert('Sorry', 'Wrong Credentials, Please try again');
             console.log('Response===>', responsejosn);
+          } else if (responsejosn.scanner == true) {
+            Actions.QR();
           }
           // console.log('Response===>', responsejosn);
           else {
