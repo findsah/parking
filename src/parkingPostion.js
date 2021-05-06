@@ -10,6 +10,7 @@ import {
   Image,
   StyleSheet,
   ImageBackground,
+  SafeAreaView,
   Alert,
 } from 'react-native';
 import {Actions} from 'react-native-router-flux';
@@ -18,8 +19,6 @@ const {width, height} = Dimensions.get('window');
 
 const ROWS = 6;
 const COLS = 4;
-const TIMING = 600;
-const TEXT_HEIGHT = 15;
 let seats = [];
 let seatsAnimation = [];
 
@@ -36,7 +35,6 @@ Array(ROWS * COLS)
       label: i + 1 < 10 ? '0' + (i + 1) : i + 1,
       s: currentIndex,
       key: i,
-      // icOccupied: false,
       selected: false,
       animated: new Animated.Value(1),
     };
@@ -57,9 +55,7 @@ export default class BusSeat extends Component {
       booking: '',
       pressed: false,
       occupied: [],
-      isOccupied: false,
     };
-
     this.selectionAnimation = new Animated.Value(0);
 
     this.animatedValue = [];
@@ -109,7 +105,7 @@ export default class BusSeat extends Component {
     };
     await fetch(
       'https://backend-parking-app.herokuapp.com/parking/occupied/' +
-        this.state.AddressId +
+        this.props?.addressId +
         '/',
       requestOptions,
     )
@@ -117,39 +113,30 @@ export default class BusSeat extends Component {
       .then((res) => {
         // console.log('Item clock data', res.Occupied_Seats);
         this.setState({
-          BusSeat: res?.Occupied_Seats?.map((item) => {
-            this.state.BusSeat.map((word) => {
-              if (word.key.includes(item)) {
-                return {
-                  ...word,
-                  isOccupied: true,
-                };
-              } else {
-                return {
-                  ...word,
-                  isOccupied: false,
-                };
-              }
-            });
+          BusSeat: this.state.BusSeat?.map((item) => {
+            if (res?.Occupied_Seats.includes(item.key)) {
+              return {
+                ...item,
+                isOccupied: true,
+              };
+            } else {
+              return {
+                ...item,
+                isOccupied: false,
+              };
+            }
           }),
         });
 
-        console.log('status==>', res);
-        // {
-        //   this.setState({
-        //     occupied: res.Occupied_Seats,
-        //   });
-        //   console.log('Occupied Seats======>', res.Occupied_Seats);
-        // }
+        {
+          this.setState({
+            occupied: res.Occupied_Seats,
+          });
+          console.log('Occupied Seats======>', res.Occupied_Seats);
+        }
       });
   };
   bookSpot = async (item) => {
-    console.log(
-      'Userid and address',
-      this.state.userId,
-      this.state.AddressId,
-      item.key + 1,
-    );
     var requestOptions = {
       method: 'POST',
       headers: {
@@ -160,9 +147,8 @@ export default class BusSeat extends Component {
     await fetch(
       'https://backend-parking-app.herokuapp.com/parking/booking/' +
         item.key +
-        1 +
         '/' +
-        this.state.AddressId +
+        this.props?.addressId +
         '/' +
         this.state.userId +
         '/',
@@ -185,7 +171,6 @@ export default class BusSeat extends Component {
           Alert.alert('Successfully Booked', 'Booked', [
             {
               text: 'Cancel',
-              onPress: () => console.log('Cancel Pressed'),
               style: 'cancel',
             },
             {
@@ -201,115 +186,54 @@ export default class BusSeat extends Component {
       });
   };
   toggleMethod = async (id) => {
-    let obj = this.state.BusSeat?.map((elem) => {
-      elem.selected = false;
-      if (elem?.key === id) {
-        if (elem.selected !== true) {
-          return {
-            ...elem,
-            selected: true,
-            // selected: !elem.selected,
-          };
+    this.setState({
+      BusSeat: this.state.BusSeat?.map((elem) => {
+        elem.selected = false;
+        if (elem?.key === id) {
+          if (elem.selected !== true) {
+            return {
+              ...elem,
+              selected: true,
+              isOccupied: true,
+            };
+          }
+          return elem;
         }
         return elem;
-      }
-      return elem;
+      }),
     });
-    await AsyncStorage.setItem('UserId', JSON.stringify(obj));
-    await AsyncStorage.getItem('UserId').then((response) => {
-      console.log('Response id checked', JSON.parse(response));
-      this.setState({
-        BusSeat: JSON.parse(response),
-      });
-    });
-    // seats.push(obj);
   };
   renderItem = ({item}) => {
+    console.log('ITEMDATATCHECKERDDDDD', item);
     const i = item.key;
-    // console.log('value======>value======>', item);
     const scale = this.animatedValue[item.s].interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [1, 0, 1],
     });
-    // const {selectedItems} = this.state;
-    // const isSelected = selectedItems.includes(item.key);
-    // const itemPressScale = item.animated.interpolate({
-    //   inputRange: [0, 0.5, 1],
-    //   outputRange: [1, 0, 1],
-    // });
-
+    const {selectedItems} = this.state;
+    const isSelected = selectedItems.includes(item.key);
     return (
-      <TouchableOpacity
-        activeOpacity={0.5}
-        onPress={() => {
-          this.toggleMethod(item.key);
-          this.bookSpot(item);
-          return;
-          const selected = isSelected
-            ? selectedItems.filter((i) => i !== item.key)
-            : [...selectedItems, item.key];
-
-          item.animated.setValue(0);
-          this.setState(
-            {
-              selectedItems: selected,
-            },
-            () => {
-              Animated.parallel([
-                Animated.timing(this.selectionAnimation, {
-                  toValue: -TEXT_HEIGHT * selected.length,
-                  duration: 500,
-                  useNativeDriver: true,
-                  easing: Easing.elastic(1.3),
-                }),
-                Animated.timing(item.animated, {
-                  toValue: 1,
-                  duration: 200,
-                  useNativeDriver: true,
-                }),
-              ]).start();
-            },
-          );
-        }}
+      <SafeAreaView
         style={{
-          opacity: 2 - parseInt(item.s) / 15,
+          flex: 1,
+          marginHorizontal: '5%',
+          top: 20,
         }}>
-        <Animated.View
-          style={{
-            transform: [
-              {
-                scale: item.animated,
-              },
-            ],
-          }}>
-          <Animated.View
-            style={[
-              {
-                backgroundColor: item.selected ? 'green' : 'red',
-                margin: '1%',
-              },
-              styles.item,
-              {
-                height: 60,
-                width: 60,
-                alignSelf: 'center',
-                marginLeft: 30,
-                marginBottom: 1,
-                marginTop: 10,
-
-                // transform: [
-                //   {
-                //     scale,
-                //   },
-                // ],
-              },
-            ]}>
-            {/* <Animated.Text style={[styles.itemText]}>
-              {item.label}
-            </Animated.Text> */}
-          </Animated.View>
-        </Animated.View>
-      </TouchableOpacity>
+        {item.isOccupied ? (
+          <View style={{backgroundColor: 'green', marginVertical: 5}}>
+            <View style={{width: 100, height: 50}}></View>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              this.toggleMethod(item.key);
+              this.bookSpot(item);
+            }}
+            style={{backgroundColor: 'red', marginVertical: 5}}>
+            <View style={{width: 100, height: 50}}></View>
+          </TouchableOpacity>
+        )}
+      </SafeAreaView>
     );
   };
 
@@ -329,7 +253,6 @@ export default class BusSeat extends Component {
           style={{
             height: 30,
             width: '100%',
-            // backgroundColor: 'red',
             top: '-6%',
             justifyContent: 'center',
           }}>
@@ -337,14 +260,16 @@ export default class BusSeat extends Component {
             CHOOSE YOUR PARKING SPOT
           </Text>
         </View>
+
         <FlatList
           numColumns={COLS}
           extraData={this.state.selectedItems}
           data={this.state.BusSeat}
-          // data={seats}
+          contentContainerStyle={{flex: 1}}
           style={{width: '100%', height: '1%'}}
           renderItem={this.renderItem}
         />
+
         <View
           style={{
             alignItems: 'center',
@@ -354,25 +279,15 @@ export default class BusSeat extends Component {
           }}>
           <View
             style={{
-              height: TEXT_HEIGHT,
-              overflow: 'hidden',
-              backgroundColor: 'transparent',
-              flexDirection: 'row',
-            }}></View>
-          <View
-            style={{
               height: 30,
               width: '75%',
               justifyContent: 'center',
               alignItems: 'center',
               alignSelf: 'center',
               marginTop: '-235%',
-              //backgroundColor: 'red',
               left: '350%',
             }}>
-            <Text
-              onPress={() => Actions.qrScreen()}
-              style={{fontSize: 12, fontWeight: 'bold'}}>
+            <Text style={{fontSize: 12, fontWeight: 'bold'}}>
               BY CLICKING ON SPOT PLEASE BOOK YOUR SPACE
             </Text>
           </View>
@@ -413,7 +328,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingTop: Constants.statusBarHeight,
     backgroundColor: '#fff',
     marginTop: '50%',
   },

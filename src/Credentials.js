@@ -86,7 +86,6 @@ export default class Signup extends Component {
               userData: data,
               isLoading: false,
             });
-            // this.props.navigation.navigate('welcomScreen');
             Alert.alert('Done', this.state.userData.status, [
               {
                 text: 'Cancel',
@@ -229,7 +228,6 @@ let styles = StyleSheet.create({
   },
 
   text1sty: {
-    //  fontFamily: 'Century Gothic',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: 30,

@@ -149,6 +149,6 @@ let styles = StyleSheet.create({
     width: '100%',
     height: 200,
     marginBottom: '-20%',
-    marginTop: '52%',
+    marginTop: '60%',
   },
 });

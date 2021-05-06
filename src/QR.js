@@ -18,7 +18,6 @@ export default class QR extends Component {
     console.log('E.DATA===>', e.data);
     console.log('Dataaaaaaa======>>>', this.state.setToken);
     this.Image(e.data);
-    console.log('DELETED====>', e.data);
   };
   Image = (token) => {
     fetch(

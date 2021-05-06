@@ -140,15 +140,13 @@ export default class Signup extends Component {
                   <TouchableOpacity
                     onPress={() => {
                       this.AnimatedLocation(item);
-                      return;
-                      this.setState({
-                        latitude: parseFloat(item?.loc_lat),
-                        longitude: parseFloat(item?.loc_long),
-                      });
-                      console.log('Item data', item);
                     }}>
                     <Text
-                      onPress={() => Actions.parkingPostion()}
+                      onPress={() =>
+                        Actions.parkingPostion({
+                          addressId: item?.id,
+                        })
+                      }
                       style={{
                         fontSize: 20,
                         marginLeft: '3%',
@@ -163,59 +161,6 @@ export default class Signup extends Component {
             })}
           </ScrollView>
         </View>
-        {/* <View
-          style={{
-            height: 20,
-            width: '100%',
-            // backgroundColor: 'red',
-            marginTop: '3%',
-          }}>
-          <Text
-            onPress={() => Actions.parkingPostion()}
-            style={{
-              color: '#5F5959',
-              fontSize: 14,
-              alignSelf: 'center',
-              top: '2%',
-              fontWeight: 'bold',
-            }}>
-            CLICK ON MAP OR TYPE FOR SEARCH
-          </Text>
-        </View> */}
-        {/* <View
-          style={{
-            height: 50,
-            width: '83%',
-            borderWidth: 1,
-            borderRadius: 25,
-            borderColor: '#000000',
-            backgroundColor: '#fff',
-            justifyContent: 'space-between',
-            marginTop: '2%',
-            marginBottom: '5%',
-            alignSelf: 'center',
-            paddingHorizontal: 50,
-            flexDirection: 'row',
-          }}>
-          <Icon
-            style={{
-              position: 'absolute',
-              left: '5%',
-              top: '27%',
-              fontSize: 24,
-              color: '#2699FB',
-            }}
-            type="Ionicons"
-            name="search"
-          />
-          <Input
-            style={{fontSize: 16}}
-            autoCapitalize="none"
-            placeholder="Search For Another Location"
-            placeholderTextColor="#645757"
-            value={this.state.username}
-          />
-        </View> */}
       </View>
     );
   }
