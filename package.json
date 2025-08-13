@@ -20,7 +20,7 @@
     "email-validator": "^2.0.4",
     "native-base": "^2.15.2",
     "react": "16.13.1",
-    "react-native": "0.63.0",
+    "react-native": "0.69.12",
     "react-native-camera": "^3.43.6",
     "react-native-elements": "^3.4.0",
     "react-native-gesture-handler": "^1.10.3",
